@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project | Felipe Sanches</title>
+    <meta name="description" content="Project case study by Felipe Sanches, Product Designer.">
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* ── Project Page ───────────────────────────── */
+        .project-page {
+            max-width: var(--content-max);
+            margin: 0 auto;
+            padding: 120px var(--gutter-desktop) 80px;
+        }
+
+        /* Back link */
+        .project-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            margin-bottom: 48px;
+            transition: color .2s;
+        }
+        .project-back:hover { color: #fff; }
+        .project-back svg { transition: transform .2s; }
+        .project-back:hover svg { transform: translateX(-3px); }
+
+        /* Hero */
+        .project-hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 48px;
+            margin-bottom: 56px;
+        }
+        .project-hero-left { max-width: 620px; }
+
+        .project-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            padding: 4px 10px;
+            margin-bottom: 20px;
+        }
+
+        .project-title {
+            font-size: clamp(52px, 7vw, 88px);
+            font-weight: 600;
+            line-height: 1.0;
+            letter-spacing: -0.03em;
+            color: #fff;
+            margin-bottom: 32px;
+        }
+
+        .project-explore-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 12px 24px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .project-explore-btn:hover { background: rgba(255,255,255,0.1); }
+
+        .project-hero-desc {
+            max-width: 340px;
+            font-size: 15px;
+            line-height: 1.65;
+            color: rgba(255,255,255,0.5);
+            text-align: right;
+        }
+
+        /* Meta row */
+        .project-meta {
+            display: flex;
+            gap: 0;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 56px;
+            padding: 28px 0;
+        }
+        .project-meta-item {
+            flex: 1;
+            padding-right: 24px;
+        }
+        .project-meta-item + .project-meta-item {
+            border-left: 1px solid rgba(255,255,255,0.08);
+            padding-left: 24px;
+        }
+        .project-meta-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 8px;
+        }
+        .project-meta-value {
+            font-size: 15px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.75);
+        }
+
+        /* Full image */
+        .project-image-wrap {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.04);
+        }
+        .project-image-wrap img {
+            display: block;
+            width: 100%;
+            height: auto;  /* natural height — no cropping */
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .project-page { padding: 100px 20px 60px; }
+            .project-hero { flex-direction: column; align-items: flex-start; gap: 24px; }
+            .project-hero-desc { text-align: left; max-width: 100%; }
+            .project-meta { flex-wrap: wrap; gap: 20px; }
+            .project-meta-item + .project-meta-item { border-left: none; padding-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-avatar"><img src="./img/FelipeSanches.png" alt="Felipe Sanches"></div>
+                <div class="nav-logo-text">
+                    <span class="nav-logo-name">Felipe Sanches</span>
+                    <span class="nav-logo-role">Product Designer</span>
+                </div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#works" class="nav-link">Works</a></li>
+                <li><a href="index.html#about" class="nav-link">About Me</a></li>
+                <li><a href="index.html#services" class="nav-link">Services</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="index.html#contact" class="btn-courses">Courses</a>
+                <a href="index.html#contact" class="btn-cta">Lets Work Together</a>
+            </div>
+            <button class="menu-btn" id="menuBtn" aria-label="Menu">
+                <span></span><span></span>
+            </button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <ul>
+                <li><a href="index.html#works">Works</a></li>
+                <li><a href="index.html#about">About Me</a></li>
+                <li><a href="index.html#services">Services</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <a href="index.html#contact" class="btn-cta w-full">Lets Work Together</a>
+        </div>
+    </nav>
+
+    <!-- PROJECT CONTENT -->
+    <main class="project-page">
+
+        <a href="index.html#works" class="project-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M5 12l7 7M5 12l7-7"/></svg>
+            Back to Works
+        </a>
+
+        <div class="project-hero">
+            <div class="project-hero-left">
+                <span class="project-badge" id="proj-category">WEBSITE</span>
+                <h1 class="project-title" id="proj-title">Project Name</h1>
+                <a class="project-explore-btn" id="proj-link" href="#" target="_blank" rel="noopener noreferrer">
+                    Explore
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </a>
+            </div>
+            <p class="project-hero-desc" id="proj-desc"></p>
+        </div>
+
+        <div class="project-meta">
+            <div class="project-meta-item">
+                <div class="project-meta-label">Client</div>
+                <div class="project-meta-value" id="proj-client">—</div>
+            </div>
+            <div class="project-meta-item">
+                <div class="project-meta-label">Services</div>
+                <div class="project-meta-value" id="proj-services">—</div>
+            </div>
+            <div class="project-meta-item">
+                <div class="project-meta-label">Industry</div>
+                <div class="project-meta-value" id="proj-industry">—</div>
+            </div>
+            <div class="project-meta-item">
+                <div class="project-meta-label">Country</div>
+                <div class="project-meta-value" id="proj-country">—</div>
+            </div>
+        </div>
+
+        <div class="project-image-wrap">
+            <img id="proj-image" src="" alt="Project screenshot">
+        </div>
+
+        <div id="proj-gallery" style="display:none; margin-top:24px; display:flex; flex-direction:column; gap:24px;"></div>
+
+        <div id="proj-videos" style="display:none; margin-top: 24px; display: flex; flex-direction: column; gap: 24px;"></div>
+
+    </main>
+
+    <script>
+        // Navbar scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 20);
+        }, { passive: true });
+
+        // Mobile menu
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        menuBtn.addEventListener('click', () => {
+            const open = mobileMenu.classList.toggle('open');
+            menuBtn.classList.toggle('open', open);
+        });
+
+        // Read project data from localStorage
+        try {
+            const data = JSON.parse(localStorage.getItem('currentProject') || '{}');
+
+            if (data.title)    document.getElementById('proj-title').textContent    = data.title;
+            if (data.category) document.getElementById('proj-category').textContent = data.category;
+            if (data.desc)     document.getElementById('proj-desc').textContent     = data.desc;
+            if (data.client)   document.getElementById('proj-client').textContent   = data.client;
+            if (data.services) document.getElementById('proj-services').textContent = data.services;
+            if (data.industry) document.getElementById('proj-industry').textContent = data.industry;
+            if (data.country)  document.getElementById('proj-country').textContent  = data.country;
+            if (data.img)      document.getElementById('proj-image').src            = data.img;
+            if (data.title)    document.title = data.title + ' | Felipe Sanches';
+
+            // Render gallery images if present
+            if (data.gallery && data.gallery.length) {
+                const galleryEl = document.getElementById('proj-gallery');
+                galleryEl.style.display = 'flex';
+                data.gallery.forEach(src => {
+                    const wrap = document.createElement('div');
+                    wrap.style.cssText = 'width:100%;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.04);';
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.style.cssText = 'width:100%;display:block;height:auto;';
+                    img.loading = 'lazy';
+                    wrap.appendChild(img);
+                    galleryEl.appendChild(wrap);
+                });
+            }
+
+            const linkEl = document.getElementById('proj-link');
+            if (data.link) {
+                linkEl.href = data.link;
+            } else {
+                linkEl.style.display = 'none';
+            }
+
+            // Render videos if present
+            if (data.videos && data.videos.length) {
+                const container = document.getElementById('proj-videos');
+                container.style.display = 'flex';
+                data.videos.forEach(src => {
+                    const wrap = document.createElement('div');
+                    wrap.style.cssText = 'width:100%;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.04);';
+                    const vid = document.createElement('video');
+                    vid.src = src;
+                    vid.autoplay = true;
+                    vid.muted = true;
+                    vid.loop = true;
+                    vid.playsInline = true;
+                    vid.controls = true;
+                    vid.style.cssText = 'width:100%;display:block;';
+                    wrap.appendChild(vid);
+                    container.appendChild(wrap);
+                });
+            }
+        } catch(e) {
+            console.error('Project data error:', e);
+        }
+    </script>
+    <script>
+      window.chatwootSettings = {"position":"right","type":"standard","launcherTitle":""};
+      (function(d,t) {
+        var BASE_URL="https://ai.falaichat.com";
+        var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=BASE_URL+"/packs/js/sdk.js";
+        g.async = true;
+        s.parentNode.insertBefore(g,s);
+        g.onload=function(){
+          window.chatwootSDK.run({
+            websiteToken: 'HUnubMAcvL75dX8xyGQzCDhK',
+            baseUrl: BASE_URL
+          })
+        }
+      })(document,"script");
+    </script>
+</body>

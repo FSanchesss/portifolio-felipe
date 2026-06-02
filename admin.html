@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Felipe Sanches</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <script src="projects-data.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #0a0a0a;
+            --surface:  #111111;
+            --surface2: #1a1a1a;
+            --border:   rgba(255,255,255,0.08);
+            --border2:  rgba(255,255,255,0.14);
+            --text:     #ffffff;
+            --muted:    rgba(255,255,255,0.45);
+            --accent:   #ffffff;
+            --accent-bg: rgba(255,255,255,0.07);
+            --danger:   #ef4444;
+            --success:  #22c55e;
+            --radius:   12px;
+            --sidebar-w: 280px;
+        }
+
+        html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Geist', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+        /* ── PIN GATE ─────────────────────────────── */
+        #pinGate {
+            position: fixed; inset: 0; background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        #pinGate.hidden { display: none; }
+
+        .pin-card {
+            width: 340px;
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            padding: 40px 32px 32px;
+            display: flex; flex-direction: column; align-items: center; gap: 24px;
+        }
+
+        .pin-identity {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .pin-avatar {
+            width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+            background: var(--surface2); flex-shrink: 0;
+        }
+        .pin-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .pin-name { font-size: 15px; font-weight: 600; }
+        .pin-role  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+        .pin-hint { font-size: 13px; color: var(--muted); text-align: center; min-height: 18px; }
+        .pin-hint.error { color: var(--danger); }
+
+        .pin-dots {
+            display: flex; gap: 12px;
+        }
+        .pin-dots span {
+            width: 12px; height: 12px; border-radius: 50%;
+            border: 1.5px solid var(--border2);
+            transition: background .15s, border-color .15s;
+        }
+        .pin-dots span.filled { background: var(--text); border-color: var(--text); }
+
+        .pin-pad {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            width: 100%;
+        }
+        .pin-key {
+            height: 56px; border-radius: 12px;
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text); font-size: 18px; font-weight: 500;
+            cursor: pointer; transition: background .15s, transform .1s;
+            font-family: inherit;
+        }
+        .pin-key:hover  { background: rgba(255,255,255,0.1); }
+        .pin-key:active { transform: scale(.95); }
+        .pin-key.clear  { font-size: 13px; color: var(--muted); }
+        .pin-key.del    { font-size: 13px; color: var(--muted); }
+        .pin-key.zero   { grid-column: 2; }
+
+        .pin-change {
+            font-size: 12px; color: var(--muted); background: none; border: none;
+            cursor: pointer; font-family: inherit; text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .pin-change:hover { color: var(--text); }
+
+        /* ── DASHBOARD ────────────────────────────── */
+        #dashboard {
+            display: none; height: 100vh;
+            flex-direction: column;
+        }
+        #dashboard.visible { display: flex; }
+
+        /* Top Bar */
+        .admin-topbar {
+            height: 56px; flex-shrink: 0;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center;
+            padding: 0 20px; gap: 16px;
+        }
+        .admin-topbar-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 14px; font-weight: 600; margin-right: auto;
+        }
+        .admin-topbar-logo .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--success); box-shadow: 0 0 6px var(--success);
+        }
+        .topbar-btn {
+            height: 32px; padding: 0 14px; border-radius: 8px;
+            font-size: 13px; font-weight: 500; cursor: pointer;
+            font-family: inherit; transition: background .15s;
+            display: flex; align-items: center; gap: 6px; border: none;
+        }
+        .topbar-btn.ghost {
+            background: transparent; color: var(--muted);
+            border: 1px solid var(--border2);
+        }
+        .topbar-btn.ghost:hover { background: var(--accent-bg); color: var(--text); }
+        .topbar-btn.primary {
+            background: var(--text); color: var(--bg);
+        }
+        .topbar-btn.primary:hover { background: rgba(255,255,255,0.85); }
+        .topbar-btn.danger-ghost {
+            background: transparent; color: var(--muted);
+            border: 1px solid var(--border2);
+        }
+        .topbar-btn.danger-ghost:hover { border-color: var(--danger); color: var(--danger); background: rgba(239,68,68,.07); }
+
+        /* Body layout */
+        .admin-body {
+            display: flex; flex: 1; overflow: hidden;
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            width: var(--sidebar-w); flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .sidebar-header {
+            padding: 16px 16px 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .sidebar-title { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+        .sidebar-count { font-size: 11px; color: var(--muted); background: var(--surface2); border-radius: 20px; padding: 2px 8px; }
+        .sidebar-list { flex: 1; overflow-y: auto; padding: 8px; }
+        .sidebar-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-list::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+        .sidebar-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 10px;
+            cursor: pointer; transition: background .15s;
+            border: 1px solid transparent;
+        }
+        .sidebar-item:hover { background: var(--surface2); }
+        .sidebar-item.active { background: var(--surface2); border-color: var(--border2); }
+        .sidebar-thumb {
+            width: 40px; height: 30px; border-radius: 6px;
+            background: var(--surface2); overflow: hidden; flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+        .sidebar-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .sidebar-item-info { flex: 1; min-width: 0; }
+        .sidebar-item-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-item-badge { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+        .sidebar-item-del {
+            width: 24px; height: 24px; border-radius: 6px;
+            background: none; border: none; cursor: pointer;
+            color: var(--muted); display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity .15s, background .15s, color .15s;
+            flex-shrink: 0;
+        }
+        .sidebar-item:hover .sidebar-item-del { opacity: 1; }
+        .sidebar-item-del:hover { background: rgba(239,68,68,.12); color: var(--danger); }
+
+        .sidebar-empty {
+            padding: 32px 16px; text-align: center;
+            font-size: 13px; color: var(--muted); line-height: 1.6;
+        }
+
+        /* Main content */
+        .admin-main {
+            flex: 1; overflow-y: auto; padding: 32px 40px;
+            display: flex; flex-direction: column;
+        }
+        .admin-main::-webkit-scrollbar { width: 6px; }
+        .admin-main::-webkit-scrollbar-track { background: transparent; }
+        .admin-main::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+        /* Empty state */
+        .empty-state {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 16px;
+            color: var(--muted); text-align: center;
+        }
+        .empty-icon {
+            width: 64px; height: 64px; border-radius: 16px;
+            background: var(--surface); border: 1px solid var(--border2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+        }
+        .empty-state h3 { font-size: 16px; color: var(--text); font-weight: 600; }
+        .empty-state p  { font-size: 13px; max-width: 280px; line-height: 1.6; }
+
+        /* Form */
+        .form-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            margin-bottom: 32px; gap: 16px; flex-wrap: wrap;
+        }
+        .form-header-left h2 { font-size: 22px; font-weight: 600; }
+        .form-header-left p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
+        .form-header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+        .form-section { margin-bottom: 32px; }
+        .form-section-title {
+            font-size: 11px; font-weight: 600; letter-spacing: .08em;
+            text-transform: uppercase; color: var(--muted);
+            margin-bottom: 16px; padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+        .form-row.single { grid-template-columns: 1fr; }
+
+        .form-field { display: flex; flex-direction: column; gap: 6px; }
+        .form-field label { font-size: 12px; font-weight: 500; color: var(--muted); }
+        .form-field input,
+        .form-field textarea,
+        .form-field select {
+            background: var(--surface2); border: 1px solid var(--border2);
+            border-radius: 8px; color: var(--text); font-family: inherit;
+            font-size: 14px; padding: 10px 14px; outline: none;
+            transition: border-color .2s;
+            width: 100%;
+        }
+        .form-field input::placeholder,
+        .form-field textarea::placeholder { color: rgba(255,255,255,0.2); }
+        .form-field input:focus,
+        .form-field textarea:focus,
+        .form-field select:focus { border-color: rgba(255,255,255,0.35); }
+        .form-field textarea { resize: vertical; min-height: 88px; }
+        .form-field select option { background: #1a1a1a; }
+        .form-field .hint { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+        /* Category checkboxes */
+        .cat-group {
+            display: flex; flex-wrap: wrap; gap: 8px;
+        }
+        .cat-label {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border-radius: 8px;
+            border: 1px solid var(--border2);
+            font-size: 12px; font-weight: 500; cursor: pointer;
+            transition: background .15s, border-color .15s;
+            user-select: none;
+        }
+        .cat-label input { display: none; }
+        .cat-label.checked { background: var(--accent-bg); border-color: rgba(255,255,255,0.3); color: var(--text); }
+        .cat-label:not(.checked) { color: var(--muted); }
+
+        /* Image preview */
+        .img-preview {
+            margin-top: 8px; height: 120px; border-radius: 10px;
+            background: var(--surface2); border: 1px dashed var(--border2);
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
+        .img-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .img-preview .no-img { font-size: 12px; color: rgba(255,255,255,0.2); }
+
+        /* Save toast */
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: var(--surface); border: 1px solid var(--border2);
+            border-radius: 10px; padding: 12px 20px;
+            font-size: 13px; font-weight: 500;
+            display: flex; align-items: center; gap: 8px;
+            transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+            opacity: 0; z-index: 999; white-space: nowrap;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.success .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+        .toast.error   .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+
+        /* Import hidden input */
+        #importInput { display: none; }
+
+        /* Confirm dialog */
+        .confirm-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center; z-index: 2000;
+            opacity: 0; pointer-events: none; transition: opacity .2s;
+        }
+        .confirm-overlay.show { opacity: 1; pointer-events: all; }
+        .confirm-box {
+            background: var(--surface); border: 1px solid var(--border2);
+            border-radius: 16px; padding: 28px; width: 360px; text-align: center;
+        }
+        .confirm-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .confirm-box p  { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+        .confirm-actions { display: flex; gap: 10px; }
+        .confirm-actions button { flex: 1; height: 40px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; border: none; }
+        .confirm-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border2) !important; }
+        .confirm-cancel:hover { background: rgba(255,255,255,.08); }
+        .confirm-ok { background: var(--danger); color: #fff; }
+        .confirm-ok:hover { background: #dc2626; }
+
+        @media (max-width: 768px) {
+            .admin-sidebar { width: 220px; }
+            .admin-main { padding: 20px; }
+            .form-row, .form-row.triple { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 560px) {
+            .admin-body { flex-direction: column; }
+            .admin-sidebar { width: 100%; height: 180px; border-right: none; border-bottom: 1px solid var(--border); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── PIN GATE ────────────────────────────────── -->
+<div id="pinGate">
+    <div class="pin-card">
+        <div class="pin-identity">
+            <div class="pin-avatar"><img src="./img/FelipeSanches.png" alt="Felipe Sanches" onerror="this.style.display='none'"></div>
+            <div>
+                <p class="pin-name">Felipe Sanches</p>
+                <p class="pin-role">Portfolio Admin</p>
+            </div>
+        </div>
+        <p class="pin-hint" id="pinHint">Enter your PIN to continue</p>
+        <div class="pin-dots" id="pinDots">
+            <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="pin-pad" id="pinPad">
+            <button class="pin-key" data-n="1">1</button>
+            <button class="pin-key" data-n="2">2</button>
+            <button class="pin-key" data-n="3">3</button>
+            <button class="pin-key" data-n="4">4</button>
+            <button class="pin-key" data-n="5">5</button>
+            <button class="pin-key" data-n="6">6</button>
+            <button class="pin-key" data-n="7">7</button>
+            <button class="pin-key" data-n="8">8</button>
+            <button class="pin-key" data-n="9">9</button>
+            <button class="pin-key clear" data-action="clear">Clear</button>
+            <button class="pin-key zero" data-n="0">0</button>
+            <button class="pin-key del" data-action="del">⌫</button>
+        </div>
+        <button class="pin-change" id="pinChangeBtn">Change PIN</button>
+    </div>
+</div>
+
+<!-- ── DASHBOARD ──────────────────────────────── -->
+<div id="dashboard">
+    <div class="admin-topbar">
+        <div class="admin-topbar-logo">
+            <div class="dot"></div>
+            Portfolio Admin
+        </div>
+        <a href="index.html" target="_blank" class="topbar-btn ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View Site
+        </a>
+        <button class="topbar-btn ghost" id="importBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import
+        </button>
+        <button class="topbar-btn ghost" id="exportBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+        </button>
+        <button class="topbar-btn primary" id="newProjectBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Project
+        </button>
+        <button class="topbar-btn danger-ghost" id="logoutBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+        </button>
+    </div>
+
+    <div class="admin-body">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Projects</span>
+                <span class="sidebar-count" id="sidebarCount">0</span>
+            </div>
+            <div class="sidebar-list" id="sidebarList"></div>
+        </aside>
+
+        <!-- Main -->
+        <main class="admin-main" id="adminMain">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">✦</div>
+                <h3>No project selected</h3>
+                <p>Click <strong>New Project</strong> in the top right to add your first project, or select one from the sidebar to edit it.</p>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span class="toast-dot"></span><span id="toastMsg"></span></div>
+
+<!-- Confirm dialog -->
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <h3 id="confirmTitle">Delete project?</h3>
+        <p id="confirmMsg">This action cannot be undone.</p>
+        <div class="confirm-actions">
+            <button class="confirm-cancel" id="confirmCancel">Cancel</button>
+            <button class="confirm-ok" id="confirmOk">Delete</button>
+        </div>
+    </div>
+</div>
+
+<input type="file" id="importInput" accept=".json">
+
+<script>
+/* ── Helpers ──────────────────────────────── */
+function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.className = 'toast ' + type;
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+function confirm(title, msg, cb) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMsg').textContent = msg;
+    const overlay = document.getElementById('confirmOverlay');
+    overlay.classList.add('show');
+    const ok = document.getElementById('confirmOk');
+    const cancel = document.getElementById('confirmCancel');
+    function close() { overlay.classList.remove('show'); ok.onclick = null; cancel.onclick = null; }
+    ok.onclick = () => { close(); cb(); };
+    cancel.onclick = close;
+}
+
+/* ── Storage ──────────────────────────────── */
+function getProjects() {
+    try {
+        const stored = JSON.parse(localStorage.getItem('adminProjects') || '[]');
+        if (stored.length) return stored;
+    } catch { /* fall through */ }
+    // First time: seed from default projects defined in projects-data.js
+    const defaults = (window.PORTFOLIO_PROJECTS || []).map(p => ({
+        ...p,
+        createdAt: p.createdAt || new Date().toISOString(),
+        updatedAt: p.updatedAt || new Date().toISOString(),
+    }));
+    if (defaults.length) saveProjects(defaults);
+    return defaults;
+}
+function saveProjects(projects) {
+    localStorage.setItem('adminProjects', JSON.stringify(projects));
+}
+function getPin() {
+    return localStorage.getItem('adminPIN') || '1234';
+}
+function savePin(pin) {
+    localStorage.setItem('adminPIN', pin);
+}
+
+/* ── PIN Gate ─────────────────────────────── */
+let pinBuffer = '';
+const pinDots = document.getElementById('pinDots');
+const pinHint = document.getElementById('pinHint');
+let pinMode = 'login'; // 'login' | 'set-new' | 'confirm-new'
+let pendingNewPin = '';
+
+function updateDots(len) {
+    pinDots.querySelectorAll('span').forEach((s, i) => s.classList.toggle('filled', i < len));
+}
+
+function resetPin(hint = 'Enter your PIN to continue') {
+    pinBuffer = '';
+    updateDots(0);
+    pinHint.className = 'pin-hint';
+    pinHint.textContent = hint;
+}
+
+function handlePinInput(digit) {
+    if (pinBuffer.length >= 4) return;
+    pinBuffer += digit;
+    updateDots(pinBuffer.length);
+    if (pinBuffer.length === 4) {
+        setTimeout(() => processPin(), 120);
+    }
+}
+
+function processPin() {
+    if (pinMode === 'login') {
+        if (pinBuffer === getPin()) {
+            document.getElementById('pinGate').classList.add('hidden');
+            document.getElementById('dashboard').classList.add('visible');
+            renderSidebar();
+        } else {
+            pinHint.className = 'pin-hint error';
+            pinHint.textContent = 'Incorrect PIN. Try again.';
+            pinBuffer = '';
+            updateDots(0);
+        }
+    } else if (pinMode === 'set-new') {
+        pendingNewPin = pinBuffer;
+        pinMode = 'confirm-new';
+        resetPin('Confirm your new PIN');
+    } else if (pinMode === 'confirm-new') {
+        if (pinBuffer === pendingNewPin) {
+            savePin(pinBuffer);
+            pinMode = 'login';
+            resetPin('PIN changed! Enter it to continue.');
+        } else {
+            pinHint.className = 'pin-hint error';
+            pinHint.textContent = 'PINs do not match. Try again.';
+            pinMode = 'set-new';
+            pendingNewPin = '';
+            pinBuffer = '';
+            updateDots(0);
+        }
+    }
+}
+
+document.getElementById('pinPad').addEventListener('click', e => {
+    const btn = e.target.closest('.pin-key');
+    if (!btn) return;
+    if (btn.dataset.n !== undefined) {
+        handlePinInput(btn.dataset.n);
+    } else if (btn.dataset.action === 'del') {
+        pinBuffer = pinBuffer.slice(0, -1);
+        updateDots(pinBuffer.length);
+    } else if (btn.dataset.action === 'clear') {
+        pinBuffer = '';
+        updateDots(0);
+    }
+});
+
+document.getElementById('pinChangeBtn').addEventListener('click', () => {
+    pinMode = 'set-new';
+    resetPin('Enter a new PIN (4 digits)');
+});
+
+// Keyboard support for PIN
+document.addEventListener('keydown', e => {
+    if (!document.getElementById('pinGate').classList.contains('hidden')) {
+        if (e.key >= '0' && e.key <= '9') handlePinInput(e.key);
+        else if (e.key === 'Backspace') { pinBuffer = pinBuffer.slice(0, -1); updateDots(pinBuffer.length); }
+        else if (e.key === 'Escape') { pinBuffer = ''; updateDots(0); }
+    }
+});
+
+/* ── Sidebar ──────────────────────────────── */
+let activeId = null;
+
+function renderSidebar() {
+    const projects = getProjects();
+    const list = document.getElementById('sidebarList');
+    document.getElementById('sidebarCount').textContent = projects.length;
+
+    if (!projects.length) {
+        list.innerHTML = '<div class="sidebar-empty">No projects yet.<br>Click <strong>New Project</strong> to add one.</div>';
+        return;
+    }
+
+    list.innerHTML = projects.map(p => `
+        <div class="sidebar-item${p.id === activeId ? ' active' : ''}" data-id="${esc(p.id)}">
+            <div class="sidebar-thumb">
+                ${p.thumbnail || p.img ? `<img src="${esc(p.thumbnail || p.img)}" alt="" loading="lazy">` : ''}
+            </div>
+            <div class="sidebar-item-info">
+                <div class="sidebar-item-name">${esc(p.title || 'Untitled')}</div>
+                <div class="sidebar-item-badge">${esc(p.badge || '')}</div>
+            </div>
+            <button class="sidebar-item-del" data-del="${esc(p.id)}" title="Delete">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+        </div>
+    `).join('');
+
+    list.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', e => {
+            if (e.target.closest('[data-del]')) return;
+            openProject(item.dataset.id);
+        });
+    });
+    list.querySelectorAll('[data-del]').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const id = btn.dataset.del;
+            const p = getProjects().find(x => x.id === id);
+            confirm('Delete project?', `"${p?.title || 'Untitled'}" will be permanently deleted.`, () => {
+                const updated = getProjects().filter(x => x.id !== id);
+                saveProjects(updated);
+                if (activeId === id) { activeId = null; showEmpty(); }
+                renderSidebar();
+                showToast('Project deleted', 'error');
+            });
+        });
+    });
+}
+
+function showEmpty() {
+    document.getElementById('adminMain').innerHTML = `
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">✦</div>
+            <h3>No project selected</h3>
+            <p>Click <strong>New Project</strong> in the top right to add your first project, or select one from the sidebar to edit it.</p>
+        </div>`;
+}
+
+/* ── Form ─────────────────────────────────── */
+const CATEGORIES = [
+    { value: 'website',    label: 'Website' },
+    { value: 'apps',       label: 'Apps' },
+    { value: 'dashboards', label: 'Dashboards' },
+    { value: 'saas',       label: 'SaaS' },
+];
+
+function openProject(id) {
+    const projects = getProjects();
+    const p = projects.find(x => x.id === id);
+    if (!p) return;
+    activeId = id;
+    renderSidebar();
+    renderForm(p);
+}
+
+function renderForm(p) {
+    const isNew = !p.id;
+    const checkedCats = p.categories || [];
+
+    document.getElementById('adminMain').innerHTML = `
+        <div class="form-header">
+            <div class="form-header-left">
+                <h2>${isNew ? 'New Project' : 'Edit Project'}</h2>
+                <p>${isNew ? 'Fill in the details to add a new project to your portfolio.' : 'Make changes and save to update your portfolio.'}</p>
+            </div>
+            <div class="form-header-actions">
+                <button class="topbar-btn ghost" id="cancelFormBtn">Cancel</button>
+                <button class="topbar-btn primary" id="saveFormBtn">Save Project</button>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title">Basic Info</div>
+            <div class="form-row" style="margin-bottom:16px">
+                <div class="form-field">
+                    <label>Title *</label>
+                    <input type="text" id="f-title" value="${esc(p.title || '')}" placeholder="Project name">
+                </div>
+                <div class="form-field">
+                    <label>Badge (type label)</label>
+                    <input type="text" id="f-badge" value="${esc(p.badge || '')}" placeholder="SAAS / WEBSITE / APPS">
+                </div>
+            </div>
+            <div class="form-row single">
+                <div class="form-field">
+                    <label>Description *</label>
+                    <textarea id="f-desc" placeholder="Short description shown on the card and project page...">${esc(p.desc || '')}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title">Categories (filter tags)</div>
+            <div class="cat-group" id="catGroup">
+                ${CATEGORIES.map(c => `
+                    <label class="cat-label${checkedCats.includes(c.value) ? ' checked' : ''}">
+                        <input type="checkbox" value="${c.value}" ${checkedCats.includes(c.value) ? 'checked' : ''}>
+                        ${c.label}
+                    </label>
+                `).join('')}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title">Project Details</div>
+            <div class="form-row" style="margin-bottom:16px">
+                <div class="form-field">
+                    <label>Client</label>
+                    <input type="text" id="f-client" value="${esc(p.client || '')}" placeholder="Client name">
+                </div>
+                <div class="form-field">
+                    <label>Services</label>
+                    <input type="text" id="f-services" value="${esc(p.services || '')}" placeholder="UI/UX Design, Branding">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Industry</label>
+                    <input type="text" id="f-industry" value="${esc(p.industry || '')}" placeholder="Food &amp; Tech">
+                </div>
+                <div class="form-field">
+                    <label>Country</label>
+                    <input type="text" id="f-country" value="${esc(p.country || '')}" placeholder="Brasil">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title">Images</div>
+            <div class="form-row" style="margin-bottom:16px">
+                <div class="form-field">
+                    <label>Card Thumbnail (card view image)</label>
+                    <input type="text" id="f-thumbnail" value="${esc(p.thumbnail || '')}" placeholder="./img/Projetos/thumb.png or https://...">
+                    <span class="hint">Shown in the works grid card.</span>
+                    <div class="img-preview" id="preview-thumbnail">
+                        ${p.thumbnail ? `<img src="${esc(p.thumbnail)}" alt="">` : '<span class="no-img">No preview</span>'}
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Project Image (full case study image)</label>
+                    <input type="text" id="f-img" value="${esc(p.img || '')}" placeholder="./img/Projetos/project.png or https://...">
+                    <span class="hint">Shown on the project detail page.</span>
+                    <div class="img-preview" id="preview-img">
+                        ${p.img ? `<img src="${esc(p.img)}" alt="">` : '<span class="no-img">No preview</span>'}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title">Links &amp; Tags</div>
+            <div class="form-row" style="margin-bottom:16px">
+                <div class="form-field">
+                    <label>External Link</label>
+                    <input type="url" id="f-link" value="${esc(p.link || '')}" placeholder="https://behance.net/...">
+                </div>
+                <div class="form-field">
+                    <label>Tags (comma-separated)</label>
+                    <input type="text" id="f-tags" value="${(p.tags || []).join(', ')}" placeholder="FIGMA, BLENDER, FRAMER">
+                </div>
+            </div>
+            <div class="form-row single">
+                <div class="form-field">
+                    <label>Video URLs (one per line)</label>
+                    <textarea id="f-videos" placeholder="./img/projetos/video.mp4&#10;https://...">${(p.videos || []).join('\n')}</textarea>
+                    <span class="hint">Optional. Add MP4 video URLs shown in the project detail page.</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="height:40px"></div>
+    `;
+
+    // Category checkbox visual sync
+    document.getElementById('catGroup').querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', () => cb.closest('.cat-label').classList.toggle('checked', cb.checked));
+    });
+
+    // Image previews
+    ['thumbnail', 'img'].forEach(field => {
+        document.getElementById('f-' + field).addEventListener('input', function() {
+            const prev = document.getElementById('preview-' + field);
+            prev.innerHTML = this.value
+                ? `<img src="${esc(this.value)}" alt="" onerror="this.style.display='none'">`
+                : '<span class="no-img">No preview</span>';
+        });
+    });
+
+    document.getElementById('cancelFormBtn').addEventListener('click', () => {
+        activeId = null; renderSidebar(); showEmpty();
+    });
+    document.getElementById('saveFormBtn').addEventListener('click', saveForm.bind(null, p.id || null));
+}
+
+function saveForm(existingId) {
+    const title = document.getElementById('f-title').value.trim();
+    if (!title) { showToast('Title is required', 'error'); return; }
+
+    const categories = [...document.querySelectorAll('#catGroup input:checked')].map(c => c.value);
+    const tags = document.getElementById('f-tags').value
+        .split(',').map(t => t.trim()).filter(Boolean);
+    const videos = document.getElementById('f-videos').value
+        .split('\n').map(v => v.trim()).filter(Boolean);
+
+    const project = {
+        id:         existingId || uid(),
+        title,
+        badge:      document.getElementById('f-badge').value.trim().toUpperCase(),
+        categories,
+        desc:       document.getElementById('f-desc').value.trim(),
+        client:     document.getElementById('f-client').value.trim(),
+        services:   document.getElementById('f-services').value.trim(),
+        industry:   document.getElementById('f-industry').value.trim(),
+        country:    document.getElementById('f-country').value.trim(),
+        thumbnail:  document.getElementById('f-thumbnail').value.trim(),
+        img:        document.getElementById('f-img').value.trim(),
+        link:       document.getElementById('f-link').value.trim(),
+        tags,
+        videos,
+        updatedAt:  new Date().toISOString(),
+    };
+    if (!existingId) project.createdAt = project.updatedAt;
+
+    const projects = getProjects();
+    const idx = projects.findIndex(x => x.id === project.id);
+    if (idx >= 0) projects[idx] = project;
+    else projects.unshift(project);
+
+    saveProjects(projects);
+    activeId = project.id;
+    renderSidebar();
+    showToast(existingId ? 'Project updated ✓' : 'Project added ✓');
+}
+
+/* ── Top bar actions ──────────────────────── */
+document.getElementById('newProjectBtn').addEventListener('click', () => {
+    activeId = null;
+    renderSidebar();
+    renderForm({});
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    document.getElementById('dashboard').classList.remove('visible');
+    document.getElementById('pinGate').classList.remove('hidden');
+    activeId = null;
+    resetPin('Enter your PIN to continue');
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+    const data = JSON.stringify(getProjects(), null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'portfolio-projects.json';
+    a.click();
+    showToast('Projects exported ✓');
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('importInput').click();
+});
+
+document.getElementById('importInput').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (!Array.isArray(data)) throw new Error();
+            confirm('Import projects?', `This will replace all ${getProjects().length} existing project(s) with ${data.length} imported project(s).`, () => {
+                saveProjects(data);
+                activeId = null;
+                renderSidebar();
+                showEmpty();
+                showToast(`Imported ${data.length} project(s) ✓`);
+            });
+        } catch {
+            showToast('Invalid JSON file', 'error');
+        }
+    };
+    reader.readAsText(file);
+    this.value = '';
+});
+</script>
+</body>
+</html>
