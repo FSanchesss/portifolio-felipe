@@ -276,6 +276,7 @@ h1, h2 { font-weight: 600; }
 .mobile-menu.open { display: flex; }
 .mobile-menu ul { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
 .mobile-menu a { font-size: 16px; font-weight: 500; padding: 10px 0; color: var(--text-muted); display: block; }
+.mobile-menu .btn-cta { color: #000; padding: 12px 24px; }
 .mobile-menu a:hover { color: #fff; }
 .mobile-lang-btn {
     display: flex;
