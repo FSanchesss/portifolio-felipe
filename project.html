@@ -214,7 +214,7 @@
 
         <a href="index.html#works" class="project-back">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M5 12l7 7M5 12l7-7"/></svg>
-            Back to Works
+            <span data-i18n="proj.back">Back to Works</span>
         </a>
 
         <div class="project-hero">
@@ -222,7 +222,7 @@
                 <span class="project-badge" id="proj-category">WEBSITE</span>
                 <h1 class="project-title" id="proj-title">Project Name</h1>
                 <a class="project-explore-btn" id="proj-link" href="#" target="_blank" rel="noopener noreferrer">
-                    Explore
+                    <span data-i18n="proj.explore">Explore</span>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </a>
             </div>
@@ -231,19 +231,19 @@
 
         <div class="project-meta">
             <div class="project-meta-item">
-                <div class="project-meta-label">Client</div>
+                <div class="project-meta-label" data-i18n="proj.meta.client">Client</div>
                 <div class="project-meta-value" id="proj-client">—</div>
             </div>
             <div class="project-meta-item">
-                <div class="project-meta-label">Services</div>
+                <div class="project-meta-label" data-i18n="proj.meta.services">Services</div>
                 <div class="project-meta-value" id="proj-services">—</div>
             </div>
             <div class="project-meta-item">
-                <div class="project-meta-label">Industry</div>
+                <div class="project-meta-label" data-i18n="proj.meta.industry">Industry</div>
                 <div class="project-meta-value" id="proj-industry">—</div>
             </div>
             <div class="project-meta-item">
-                <div class="project-meta-label">Country</div>
+                <div class="project-meta-label" data-i18n="proj.meta.country">Country</div>
                 <div class="project-meta-value" id="proj-country">—</div>
             </div>
         </div>
@@ -284,6 +284,8 @@
             if (data.title)    document.getElementById('proj-title').textContent    = data.title;
             if (data.category) document.getElementById('proj-category').textContent = data.category;
             if (data.desc)     document.getElementById('proj-desc').textContent     = data.desc;
+            // Let i18n re-translate the description when the language is toggled
+            if (data.descKey)  document.getElementById('proj-desc').setAttribute('data-i18n', data.descKey);
             if (data.client)   document.getElementById('proj-client').textContent   = data.client;
             if (data.services) document.getElementById('proj-services').textContent = data.services;
             if (data.industry) document.getElementById('proj-industry').textContent = data.industry;
@@ -344,6 +346,8 @@
             console.error('Project data error:', e);
         }
     </script>
+    <!-- i18n: translates nav + static labels and applies browser-detected / saved language -->
+    <script src="i18n.js"></script>
     <script>
       window.chatwootSettings = {"position":"right","type":"standard","launcherTitle":""};
       (function(d,t) {

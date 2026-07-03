@@ -32,6 +32,13 @@ window.TRANSLATIONS = {
         'proj.vivo.desc':    'I created digital communication assets and UX experiences for the Vivo Empresas product line.',
         'proj.g3.desc':      'I designed the G3 Telemedicina landing page, building trust and driving new patient conversions.',
         'proj.abrasileira.desc': 'I designed and built the full digital menu website for A Brasileira, a historic café in Braga.',
+        /* Project detail page */
+        'proj.back':           'Back to Works',
+        'proj.explore':        'Explore',
+        'proj.meta.client':    'Client',
+        'proj.meta.services':  'Services',
+        'proj.meta.industry':  'Industry',
+        'proj.meta.country':   'Country',
         /* Services */
         'services1.tag':   'WEBSITES &amp; LANDINGPAGES',
         'services1.title': 'Websites that tell<br>stories and convert.',
@@ -95,6 +102,13 @@ window.TRANSLATIONS = {
         'proj.vivo.desc':    'Criei peças de comunicação digital e experiências de UX para a linha Vivo Empresas.',
         'proj.g3.desc':      'Criei a landing page da G3 Telemedicina, comunicando credibilidade e facilitando a conversão de novos pacientes.',
         'proj.abrasileira.desc': 'Projetei e desenvolvi o cardápio digital completo d\'A Brasileira, um café histórico em Braga.',
+        /* Project detail page */
+        'proj.back':           'Voltar aos Trabalhos',
+        'proj.explore':        'Explorar',
+        'proj.meta.client':    'Cliente',
+        'proj.meta.services':  'Serviços',
+        'proj.meta.industry':  'Setor',
+        'proj.meta.country':   'País',
         /* Services */
         'services1.tag':   'WEBSITES &amp; LANDINGPAGES',
         'services1.title': 'Websites que contam<br>histórias e convertem.',

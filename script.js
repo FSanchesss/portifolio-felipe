@@ -140,6 +140,7 @@ document.querySelectorAll('.js-open-project').forEach(btn => {
             title:    card.dataset.title    || '',
             category: card.dataset.badge    || '',
             desc:     card.dataset.desc     || '',
+            descKey:  card.dataset.i18nDesc || '',
             client:   card.dataset.client   || '',
             services: card.dataset.services || '',
             industry: card.dataset.industry || '',
