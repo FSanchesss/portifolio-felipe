@@ -735,10 +735,17 @@ function renderForm(p) {
                 <div class="form-field">
                     <label>Project Image (full case study image)</label>
                     <input type="text" id="f-img" value="${esc(p.img || '')}" placeholder="./img/Projetos/project.png or https://...">
-                    <span class="hint">Shown on the project detail page.</span>
+                    <span class="hint">Shown on the project detail page (ignored if Live Site URL below is set).</span>
                     <div class="img-preview" id="preview-img">
                         ${p.img ? `<img src="${esc(p.img)}" alt="">` : '<span class="no-img">No preview</span>'}
                     </div>
+                </div>
+            </div>
+            <div class="form-row single">
+                <div class="form-field">
+                    <label>Live Site URL (iframe)</label>
+                    <input type="url" id="f-iframe" value="${esc(p.iframe || '')}" placeholder="https://your-project.vercel.app/">
+                    <span class="hint">Optional. If set, embeds the live site in an iframe on the project page instead of the static image.</span>
                 </div>
             </div>
         </div>
@@ -810,6 +817,7 @@ function saveForm(existingId) {
         country:    document.getElementById('f-country').value.trim(),
         thumbnail:  document.getElementById('f-thumbnail').value.trim(),
         img:        document.getElementById('f-img').value.trim(),
+        iframe:     document.getElementById('f-iframe').value.trim(),
         link:       document.getElementById('f-link').value.trim(),
         tags,
         videos,

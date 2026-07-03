@@ -145,6 +145,7 @@ document.querySelectorAll('.js-open-project').forEach(btn => {
             industry: card.dataset.industry || '',
             country:  card.dataset.country  || '',
             img:      card.dataset.img      || '',
+            iframe:   card.dataset.iframe   || '',
             link:     card.dataset.link     || '',
             videos:   card.dataset.videos   ? JSON.parse(card.dataset.videos)  : [],
             gallery:  card.dataset.gallery  ? JSON.parse(card.dataset.gallery) : [],
